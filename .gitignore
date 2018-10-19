@@ -1,3 +1,5 @@
+pybytes_config.json
+cert/
 .DS_Store
 pymakr.conf
 #Byte-compiled / optimized / DLL files
