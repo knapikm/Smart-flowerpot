@@ -3,6 +3,16 @@ import time
 import machine
 from mqtt import MQTTClient
 
+def prepare_payload_for_publish():
+    temp, hum, light, press, voltage = measurements()
+    payload = {"temperature": {"mp": temp[0], "si": temp[1]},
+               "humidity": hum,
+               "light": {"red": light[0], "blue": light[1]},
+               "pressure": press,
+               "battery": voltage
+              }
+    payload = json.dumps(payload)
+    return payload
 
 pycom.heartbeat(False)
 pycom.rgbled(0x001000)
