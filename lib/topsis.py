@@ -26,10 +26,8 @@ def solutions(array):
     # down, 0,3
     # + ideal solution, max up, min down -> min, max, max, min
     # - ideal solution, min up, max down -> max, min, min, max
-    #pos = [min(array[0]), max(array[1]), max(array[2]), min(array[3])]
-    pos = [max(array[0]), max(array[1]), min(array[2]), min(array[3])]
-    #neg = [max(array[0]), min(array[1]), min(array[2]), max(array[3])]
-    neg = [min(array[0]), min(array[1]), max(array[2]), max(array[3])]
+    pos = [min(array[0]), max(array[1]), max(array[2]), min(array[3])]
+    neg = [max(array[0]), min(array[1]), min(array[2]), max(array[3])]
 
     s_pos = []
     s_neg = []
@@ -54,8 +52,8 @@ dec_matrix = [[9, 8, 7],
               [6, 9, 6],
               [7, 6, 6]]
 '''
-weights = [4,10,4,8]
-dec_matrix = [[-26, -50, -90],
+weights = [6,2,2,10]
+dec_matrix = [[-26, -39, -90],
               [2.1, 2.1, 2.1],
               [150000000, 260000, 100],
               [111, 95.9, 160]]
