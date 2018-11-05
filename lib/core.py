@@ -34,5 +34,6 @@ def measurements():
     #acc
     voltage = py.read_battery_voltage()
     #moist = int(moist_sensor())
+    moist = 0
 
-    return (temp_mp, temp_si), hum, light, press, voltage
+    return (temp_mp, temp_si), hum, light, press, voltage, moist
