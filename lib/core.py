@@ -36,5 +36,3 @@ def measurements():
     moist = int(moist_sensor())
 
     return (temp_mp, temp_si), hum, light, press, voltage, moist
-
-print(measurements())
