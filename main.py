@@ -5,7 +5,7 @@ import pycom
 pycom.heartbeat(False)
 
 bluetooth = Bluetooth()
-bluetooth.start_scan(20)
+bluetooth.start_scan(10)
 while bluetooth.isscanning():
     adv = bluetooth.get_adv()
     if adv:

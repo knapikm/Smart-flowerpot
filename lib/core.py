@@ -33,7 +33,8 @@ def measurements():
     light = lt.light()
     #acc
     voltage = py.read_battery_voltage()
-    #moist = int(moist_sensor())
-    moist = 0
+    moist = int(moist_sensor())
 
     return (temp_mp, temp_si), hum, light, press, voltage, moist
+
+print(measurements())

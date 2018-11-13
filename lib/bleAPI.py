@@ -2,7 +2,7 @@ from network import Bluetooth
 from core import measurements
 
 bluetooth = Bluetooth()
-bluetooth.set_advertisement(name='LoPy', service_uuid=b'1234567890123456')
+bluetooth.set_advertisement(name='SiPy', service_uuid=b'1234567890123456')
 
 def conn_cb (bt_o):
     events = bt_o.events()
@@ -15,7 +15,7 @@ bluetooth.callback(trigger=Bluetooth.CLIENT_CONNECTED | Bluetooth.CLIENT_DISCONN
 ​
 bluetooth.advertise(True)
 ​​
-srv = bluetooth.service(uuid=4321, isprimary=True, nbr_chars=5, start=False)
+srv = bluetooth.service(uuid=4321, isprimary=True, nbr_chars=6, start=False)
 
 temp, hum, light, press, voltage, moist = measurements()
 tempChr = srv.characteristic(uuid=4561, value=str(temp))
@@ -26,15 +26,15 @@ voltChr = srv.characteristic(uuid=4565, value=str(voltage))
 moistChr = srv.characteristic(uuid=4565, value=str(moist))
 srv.start()
 
-def char2_cb_handler(chr):
+def char_cb_handler(chr):
     print('read')
 
-char1_cb = tempChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char2_cb_handler)
-char2_cb = humChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char2_cb_handler)
-char3_cb = lightChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char2_cb_handler)
-char4_cb = pressChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char2_cb_handler)
-char5_cb = voltChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char2_cb_handler)
-char6_cb = moistChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char2_cb_handler)
+char1_cb = tempChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb_handler)
+char2_cb = humChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb_handler)
+char3_cb = lightChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb_handler)
+char4_cb = pressChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb_handler)
+char5_cb = voltChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb_handler)
+char6_cb = moistChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb_handler)
 
 '''
 bluetooth.start_scan(20)
