@@ -43,10 +43,10 @@ def det_ideal_sol(sol):
     s_neg = sol[1]
     sum = [s_pos[i] + s_neg[i] for i in range(len(s_pos))]
     ideal = [s_neg[i] / sum[i] for i in range(len(s_pos))]
-    print(ideal)
+    return ideal
 
 weights = [6,2,2,10]
-dec_matrix = [[-26, -39, -90], # rssi
+dec_matrix = [[-26, -1000, -90], # rssi
               [2.1, 2.1, 2.1], # battery
               [150000000, 260000, 100], # max data rate
               [111, 95.9, 47]] # Current consumption

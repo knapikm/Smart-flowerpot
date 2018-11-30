@@ -123,7 +123,7 @@ class MQTTClient:
                     rcv_pid = self.sock.read(2)
                     rcv_pid = rcv_pid[0] << 8 | rcv_pid[1]
                     if pid == rcv_pid:
-                        return
+                        return 1
         elif qos == 2:
             assert 0
 
