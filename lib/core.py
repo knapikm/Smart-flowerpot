@@ -4,6 +4,7 @@ from SI7006A20 import SI7006A20
 from LTR329ALS01 import LTR329ALS01
 from MPL3115A2 import MPL3115A2,ALTITUDE,PRESSURE
 from machine import Pin,ADC
+import pycom
 
 py = Pysense()
 mp = MPL3115A2(pysense=py,mode=ALTITUDE) # Returns height in meters. Mode may also be set to PRESSURE, returning a value in Pascals
@@ -23,6 +24,9 @@ def moist_sensor():
 
 def measurements():
     global py, mp, si, lt, acc
+
+    id = pycom.nvs_get('msg_id')
+
     temp_mp = int(mp.temperature()* 100)/100.0 #bytearray(int(mp.temperature()* 10)/10.0))
     mpp = MPL3115A2(py,mode=PRESSURE) # Returns pressure in Pa. Mode may also be set to ALTITUDE, returning a value in meters
     #alt = mp.altitude()
@@ -35,4 +39,4 @@ def measurements():
     voltage = py.read_battery_voltage()
     moist = int(moist_sensor())
 
-    return (temp_mp, temp_si), hum, light, press, voltage, moist
+    return id, (temp_mp, temp_si), hum, light, press, voltage, moist

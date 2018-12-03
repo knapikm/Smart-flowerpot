@@ -9,8 +9,9 @@ client = None
 wlan = None
 
 def prepare_payload_for_publish():
-    temp, hum, light, press, voltage, moist = measurements()
-    payload = {"temperature": temp[1],
+    id, temp, hum, light, press, voltage, moist = measurements()
+    payload = {"id": id,
+               "temperature": temp[1],
                "humidity": hum,
                #"light": {"red": light[0], "blue": light[1]},
                "pressure": press,
@@ -20,7 +21,7 @@ def prepare_payload_for_publish():
     return json.dumps(payload)
 
 
-def connect():
+def wifi_connect():
     global client, wlan
 
     wlan = WLAN(mode=WLAN.STA)
@@ -53,9 +54,10 @@ def wifi_send():
     print('sending...')
     ret = client.publish(topic=b"/v1.6/devices/sipy", msg=prepare_payload_for_publish(), qos=1)
     #ret = client.publish(topic=b"/v1.6/devices/sipy", msg='{"test2": {"a": 1, "b": 2}}', qos=1)
-    print(ret)
     #while wlan.isconnected():
         #time.sleep(5)
         #print(wlan.ifconfig())
     #print('WLAN connection end...!')
     wlan.disconnect()
+    print(ret)
+    return ret

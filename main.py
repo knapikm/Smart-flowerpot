@@ -2,7 +2,8 @@ from network import Bluetooth
 from network import WLAN
 from pysense import Pysense
 from topsis import standardize, multiply_weights, solutions, det_ideal_sol
-from wifiAPI import connect, wifi_send
+from wifiAPI import wifi_connect, wifi_send
+from bleAPI import gatt_connect, gatt_service
 import ubinascii
 import pycom
 
@@ -38,7 +39,7 @@ def networks_finder():
                 bluetooth.stop_scan()
                 break
 
-    return ble, wifi,
+    return ble, wifi
 
 def battery_level():
     battery = py.read_battery_voltage()
@@ -73,12 +74,17 @@ def find_best_net():
 
 def connect_and_send(networks):
     net = results.index(max(results))
+    net = 1
     if net == 0: # wifi
-        connect()
-        wifi_send()
+        wifi_connect()
+        ret = wifi_send()
+        if ret == 1:
+            id = pycom.nvs_get('msg_id')
+            pycom.nvs_set('msg_id', id + 1)
 
-    if net == 1:
-        pass # ble
+    if net == 1: # ble
+        gatt_connect()
+        gatt_service()
 
     if net == 2:
         pass # sigfox
