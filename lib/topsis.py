@@ -22,12 +22,12 @@ def multiply_weights(array, w):
 def solutions(array):
 
     # step 3 - determine ideal solution and negative ideal solution
-    # up 1,2
-    # down, 0,3
-    # + ideal solution, max up, min down -> min, max, max, min
-    # - ideal solution, min up, max down -> max, min, min, max
-    pos = [min(array[0]), max(array[1]), max(array[2]), min(array[3])]
-    neg = [max(array[0]), min(array[1]), min(array[2]), max(array[3])]
+    # up 2
+    # down, 0,1,3
+    # + ideal solution, max up, min down -> min, min, max, min
+    # - ideal solution, min up, max down -> max, max, min, max
+    pos = [min(array[0]), min(array[1]), max(array[2]), min(array[3])]
+    neg = [max(array[0]), max(array[1]), min(array[2]), max(array[3])]
 
     s_pos = []
     s_neg = []

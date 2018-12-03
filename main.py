@@ -2,6 +2,7 @@ from network import Bluetooth
 from network import WLAN
 from pysense import Pysense
 from topsis import standardize, multiply_weights, solutions, det_ideal_sol
+from wifiAPI import connect, wifi_send
 import ubinascii
 import pycom
 
@@ -11,6 +12,7 @@ pycom.heartbeat(False)
 def networks_finder():
     ble = -1000
     wifi = -1000
+    # TODO: pridat casovace
 
     wlan = WLAN(mode=WLAN.STA)
     wlan.disconnect()
@@ -21,6 +23,7 @@ def networks_finder():
             #print(net, net[4])
             wifi = net[4]
             break
+    wlan.deinit()
 
     bluetooth = Bluetooth()
     bluetooth.start_scan(5)
@@ -54,7 +57,7 @@ def battery_level():
 def find_best_net():
     ble, wifi = networks_finder()
 
-    weights = [6,2,2,10]
+    weights = [7,8,2,6]
     dec_matrix = [[wifi, ble, -90], # rssi
                   battery_level(), # battery
                   [150000000, 260000, 100], # max data rate
@@ -68,5 +71,18 @@ def find_best_net():
     # TODO: pripojenie k naj siete
     # TODO: odmeranie a odoslanie velicin
 
+def connect_and_send(networks):
+    net = results.index(max(results))
+    if net == 0: # wifi
+        connect()
+        wifi_send()
+
+    if net == 1:
+        pass # ble
+
+    if net == 2:
+        pass # sigfox
+
 results = find_best_net()
-print(results.index(max(results)))
+print(results)
+connect_and_send(results)
