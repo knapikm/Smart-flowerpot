@@ -13,7 +13,8 @@ def prepare_payload_for_publish():
     payload = {"id": id,
                "temperature": temp[1],
                "battery": voltage,
-               "moisture": moist
+               "moisture": moist,
+               "network": 1
               }
     return json.dumps(payload)
 
