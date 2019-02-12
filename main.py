@@ -4,6 +4,7 @@ from pysense import Pysense
 from topsis import standardize, multiply_weights, solutions, det_ideal_sol
 from wifiAPI import wifi_connect, wifi_send
 from bleAPI import gatt_connect, gatt_service
+from sigfoxAPI import sigfox_send
 import ubinascii
 import pycom
 
@@ -68,12 +69,13 @@ def find_best_net():
     dec_matrix = multiply_weights(dec_matrix, weights)
     sol = solutions(dec_matrix)
     results = det_ideal_sol(sol)
+    print(results)
     return results
     # TODO: pripojenie k naj siete
     # TODO: odmeranie a odoslanie velicin
 
 def connect_and_send(networks):
-    net = results.index(max(results))
+    net = networks.index(max(networks))
     net = 1
     if net == 0: # wifi
         wifi_connect()
@@ -87,8 +89,9 @@ def connect_and_send(networks):
         gatt_service()
 
     if net == 2:
-        pass # sigfox
+        ret = sigfox_send()
+        if ret == 8:
+            id = pycom.nvs_get('msg_id')
+            pycom.nvs_set('msg_id', id + 1)
 
-results = find_best_net()
-print(results)
-connect_and_send(results)
+connect_and_send(find_best_net())
