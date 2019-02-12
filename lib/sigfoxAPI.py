@@ -2,23 +2,28 @@ from network import Sigfox
 import socket
 import struct
 import pycom
+import core
+
 pycom.rgbled(0x002200)
-# init Sigfox for RCZ1 (Europe)
-sigfox = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ1)
 
-# create a Sigfox socket
-s = socket.socket(socket.AF_SIGFOX, socket.SOCK_RAW)
+def sigfox_payload():
+    id, temp, hum, press, voltage, moist = core.measurements()
+    print(id, voltage, temp, moist)
+    return bytes([(id >> 8) & 0xff]) + bytes([(id) & 0xff]) + bytearray(struct.pack("f", voltage)) \
+           + bytes([temp]) + bytes([moist])
 
-# make the socket blocking
-s.setblocking(True)
+def sigfox_send():
+    sigfox = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ1) # init Sigfox for RCZ1 (Europe)
+    s = socket.socket(socket.AF_SIGFOX, socket.SOCK_RAW) # create a Sigfox socket
+    s.setblocking(True) # make the socket blocking
+    s.setsockopt(socket.SOL_SIGFOX, socket.SO_RX, False)
+    ret = s.send(sigfox_payload())
+    print(ret)
+    pycom.rgbled(0x000000)
 
-# configure it as DOWNLINK specified by 'True'
-s.setsockopt(socket.SOL_SIGFOX, socket.SO_RX, True)
-
-# send values as little-endian and int, request DOWNLINK
-a = s.send('test12345678')
-print(a)
-pycom.rgbled(0x000000)
+    s.setblocking(False)
+    s.close()
+    return ret
 
 # await DOWNLINK message
-print(s.recv(32))
+#print(s.recv(32))
