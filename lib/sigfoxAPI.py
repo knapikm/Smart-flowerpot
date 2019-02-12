@@ -4,8 +4,6 @@ import struct
 import pycom
 import core
 
-pycom.rgbled(0x002200)
-
 def sigfox_payload():
     id, temp, hum, press, voltage, moist = core.measurements()
     print(id, voltage, temp, moist)
@@ -17,6 +15,7 @@ def sigfox_send():
     s = socket.socket(socket.AF_SIGFOX, socket.SOCK_RAW) # create a Sigfox socket
     s.setblocking(True) # make the socket blocking
     s.setsockopt(socket.SOL_SIGFOX, socket.SO_RX, False)
+    pycom.rgbled(0x002200)
     ret = s.send(sigfox_payload())
     print(ret)
     pycom.rgbled(0x000000)
