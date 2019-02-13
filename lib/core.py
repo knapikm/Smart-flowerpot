@@ -25,10 +25,10 @@ def measurements():
     global py, mp, si, lt, acc
 
     id = pycom.nvs_get('msg_id')
-    temp = int(si.temperature())
-    hum = int(si.humidity()*100)/100.0
-    press = mp.pressure()
+    temp = int(si.temperature()*0.8)
+    #hum = int(si.humidity()*100)/100.0
+    #press = mp.pressure()
     voltage = int(py.read_battery_voltage()*1000)/1000.0
     moist = int(moist_sensor())
-    print(id, temp, hum, press, voltage, moist)
-    return id, temp, hum, press, voltage, moist
+    print(id, temp, voltage, moist)
+    return id, temp, voltage, moist

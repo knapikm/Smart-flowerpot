@@ -4,7 +4,7 @@ import pycom
 
 pycom.wifi_on_boot(False)
 pycom.heartbeat(False)
-pycom.rgbled(0xFF8C00)
+pycom.rgbled(0x331C00)
 
 id = pycom.nvs_get('msg_id')
 if id is None:
