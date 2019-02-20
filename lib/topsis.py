@@ -26,8 +26,8 @@ def solutions(array):
     # down, 1,3
     # + ideal solution, max up, min down -> min, min, max, min
     # - ideal solution, min up, max down -> max, max, min, max
-    pos = [max(array[0]), min(array[1]), max(array[2]), min(array[3])]
-    neg = [min(array[0]), max(array[1]), min(array[2]), max(array[3])]
+    pos = [min(array[0]), min(array[1]), max(array[2]), min(array[3])]
+    neg = [max(array[0]), max(array[1]), min(array[2]), max(array[3])]
 
     s_pos = []
     s_neg = []
