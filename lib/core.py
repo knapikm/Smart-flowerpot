@@ -19,7 +19,14 @@ def moist_sensor():
     p_out.value(1)
     volts = apin.value()
     p_out.value(0)
-    return volts / 4.096
+    volts /= 4.096
+
+    print(volts)
+    if volts >= 760:
+        perc = 100
+    else:
+        perc = (volts / 760.0) * 100
+    return int(perc)
 
 def measurements():
     global py, mp, si, lt, acc
@@ -29,6 +36,14 @@ def measurements():
     #hum = int(si.humidity()*100)/100.0
     #press = mp.pressure()
     voltage = int(py.read_battery_voltage()*1000)/1000.0
-    moist = int(moist_sensor())
-    print(id, temp, voltage, moist)
-    return id, temp, voltage, moist
+
+    if voltage > 4.4:
+        perc = 100
+    else:
+        # % = (voltage - min) / (max - min)
+        voltage -= 3.311
+        perc = int((voltage / 0.8) * 100)
+
+    moist = moist_sensor()
+    print(id, temp, perc, moist)
+    return id, temp, perc, moist
