@@ -2,7 +2,9 @@ from network import Sigfox
 import socket
 import struct
 import pycom
+import utime
 import core
+from machine import idle
 
 def sigfox_payload():
     id, temp, voltage, moist = core.measurements()
@@ -18,9 +20,15 @@ def sigfox_send():
     try:
         print('Sigfox sending...')
         ret = s.send(sigfox_payload())
-        print(ret)
+        print('Sigfox done', ret)
+        pycom.rgbled(0x003300)
+        idle()
+        utime.sleep(0.3)
     except Exception as e:
-        pass
+        print('Sigfox error', e.args[0])
+        pycom.rgbled(0x330000)
+        idle()
+        utime.sleep(0.3)
     s.setblocking(False)
     s.close()
     return ret
