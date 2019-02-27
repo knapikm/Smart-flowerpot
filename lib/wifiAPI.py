@@ -21,11 +21,11 @@ def wifi_connect():
 
     nets = wlan.scan()
     for net in nets:
-        if net.ssid == 'INFOTECH':
-        #if net.ssid == 'RPiAP-DP':
+        #if net.ssid == 'INFOTECH':
+        if net.ssid == 'RPiAP-DP':
             print('Wifi connecting...')
-            wlan.connect(ssid=net.ssid, auth=(net.sec, 'MU1nFotech28'), timeout=5000)
-            #wlan.connect(ssid=net.ssid, auth=(net.sec, 'raspberry-pi.DP18-19'), timeout=5000)
+            #wlan.connect(ssid=net.ssid, auth=(net.sec, 'MU1nFotech28'), timeout=5000)
+            wlan.connect(ssid=net.ssid, auth=(net.sec, 'raspberry-pi.DP18-19'), timeout=5000)
             while not wlan.isconnected():
                 machine.idle()
                 time.sleep(1)

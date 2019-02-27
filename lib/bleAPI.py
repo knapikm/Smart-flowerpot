@@ -41,7 +41,7 @@ def gatt_service():
     id, temp, voltage, moist = core.measurements()
     respChr = srv.characteristic(uuid=4560, value=0)
     idTempChr = srv.characteristic(uuid=4561, value="{}, {}".format(id, temp))
-    battMoistChr = srv.characteristic(uuid=4563, value="{}, {}".format(voltage, moist))
+    battMoistChr = srv.characteristic(uuid=4562, value="{}, {}".format(voltage, moist))
 
     char0_cb = respChr.callback(trigger=Bluetooth.CHAR_WRITE_EVENT, handler=char_cb_handler)
     char1_cb = idTempChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb_handler)
