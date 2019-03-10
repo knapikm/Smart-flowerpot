@@ -32,7 +32,7 @@ def measurements():
     global py, mp, si, lt, acc
 
     id = pycom.nvs_get('msg_id')
-    temp = int(si.temperature()*0.8)
+    temp = int(si.temperature())
     #hum = int(si.humidity()*100)/100.0
     #press = mp.pressure()
     voltage = int(py.read_battery_voltage()*1000)/1000.0
