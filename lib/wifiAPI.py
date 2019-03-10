@@ -42,6 +42,7 @@ def wifi_connect():
 
 
 def wifi_send():
+    global client, wlan
     print('Wifi sending...')
     ret = client.publish(topic=b"/v1.6/devices/sipy", msg=prepare_payload_for_publish(), qos=1)
     wlan.disconnect()
