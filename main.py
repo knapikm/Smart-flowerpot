@@ -1,48 +1,44 @@
-from network import Bluetooth
-from network import WLAN
+from network import Bluetooth, WLAN
 from pysense import Pysense
-from topsis import standardize, multiply_weights, solutions, det_ideal_sol
+import ubinascii
+import pycom
+import utime
+import sys
+from machine import idle
+
+import topsis
 from wifiAPI import wifi_connect, wifi_send
 from bleAPI import gatt_connect, gatt_service
 from sigfoxAPI import sigfox_send
-import ubinascii
-import pycom
-import time
-from machine import idle
+import logger
 
 py = Pysense()
 pycom.heartbeat(False)
 
+def debug_led(rgb, time):
+    pycom.rgbled(rgb)
+    idle()
+    utime.sleep(time)
+    pycom.rgbled(0)
+
 def start_deep_sleep():
     pycom.rgbled(0x000000)
     idle()
-    time.sleep(1)
+    utime.sleep(1)
 
-    pycom.rgbled(0xbb0000)
+    debug_led(0xbb0000, 1)
     idle()
-    time.sleep(1)
-    pycom.rgbled(0x000000)
-    idle()
-    time.sleep(0.5)
+    utime.sleep(0.5)
 
-    pycom.rgbled(0x880000)
+    debug_led(0x880000, 0.7)
     idle()
-    time.sleep(0.7)
-    pycom.rgbled(0x000000)
-    idle()
-    time.sleep(0.4)
+    utime.sleep(0.4)
 
-    pycom.rgbled(0x440000)
+    debug_led(0x440000, 0.4)
     idle()
-    time.sleep(0.4)
-    pycom.rgbled(0x000000)
-    idle()
-    time.sleep(0.4)
+    utime.sleep(0.4)
 
-    pycom.rgbled(0x110000)
-    idle()
-    time.sleep(0.3)
-    pycom.rgbled(0x000000)
+    debug_led(0x110000, 0.3)
 
 def deep_sleep():
     print('Start deep sleep...')
@@ -55,8 +51,8 @@ def deep_sleep():
     py.go_to_sleep()
 
 def networks_finder():
-    ble = -1000
-    wifi = -1000
+    ble = -10000
+    wifi = -10000
     # TODO: pridat casovace
 
     wlan = WLAN(mode=WLAN.STA)
@@ -78,16 +74,16 @@ def networks_finder():
             mac = ubinascii.hexlify(adv.mac)
             if mac == bytearray('b827ebeec52e'):
                 #name = bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL)
-                #print(mac, name, adv.rssi)
+                print(mac, name, adv.rssi)
                 ble = adv.rssi
                 bluetooth.stop_scan()
                 break
     bluetooth.deinit()
-
     return ble, wifi
 
-def battery_level():
+def battery_level(w, b):
     battery = py.read_battery_voltage()
+    logger.VOLTAGE = battery
     if battery > 4.6:
         perc = 100
     else:
@@ -99,63 +95,83 @@ def battery_level():
         if list[i] < 0:
             list[i] *= -1
             list[i] /= 2
-    print('Battery', list)
+    if w == -10000:
+        list[0] = 10000
+    if b == -10000:
+        list[1] = 10000
+    logger.BATTERY = list
     return list
 
-def find_best_net():
+def order_networks():
     ble, wifi = networks_finder()
-
-    weights = [7,8,2,6]
-    dec_matrix = [[wifi, ble, -90], # rssi
-                  battery_level(), # battery
+    logger.RSSI = [wifi, ble, -90]
+    weights = [6,10,2,5]
+    dec_matrix = [[-35, -30, -90], # rssi
+                  #battery_level(wifi, ble), # battery
+                  [10000, 10000, 70],
                   [150000000, 260000, 100], # max data rate
                   [111, 95.9, 47]] # Current consumption
 
-    dec_matrix = standardize(dec_matrix)
-    dec_matrix = multiply_weights(dec_matrix, weights)
-    sol = solutions(dec_matrix)
-    results = det_ideal_sol(sol)
-    print(results)
+    dec_matrix = topsis.standardize(dec_matrix)
+    dec_matrix = topsis.multiply_weights(dec_matrix, weights)
+    sol = topsis.solutions(dec_matrix)
+    results = topsis.det_ideal_sol(sol)
+    #print(wifi, ble, -90)
+    logger.RES = results
     return results
 
-def connect_and_send(networks):
-    net = networks.index(max(networks))
-    net = 1
-    if net == 0: # wifi
+def connect_and_send(network):
+    if network == 0: # wifi
         pycom.rgbled(0x003300)
         wifi_connect()
         ret = wifi_send()
         if ret == 1:
-            id = pycom.nvs_get('msg_id')
-            pycom.nvs_set('msg_id', id + 1)
-        pycom.rgbled(0x000000)
+            pycom.rgbled(0x000000)
+            logger.W = True
+            return True
+        else:
+            debug_led(0x330000, 0.3)
+            logger.W = False
+            return False
 
-    if net == 1: # ble
+    if network == 1: # ble
         pycom.rgbled(0x030033) # blue
         pycom.nvs_set('ble', 0)
         gatt_connect()
         gatt_service()
 
-        join_wait = 0
-        while join_wait < 10:
-            join_wait += 1
+        for _ in range(10):
             idle()
-            time.sleep(3)
+            utime.sleep(3)
             ble = pycom.nvs_get('ble')
             if ble == 1:
-                id = pycom.nvs_get('msg_id')
-                pycom.nvs_set('msg_id', id + 1)
-                break
-        pycom.rgbled(0x000000)
+                debug_led(0x003300, 0.3)
+                logger.B = True
+                return True
+        else:
+            debug_led(0x330000, 0.3)
+            logger.B = False
+            return False
 
-    if net == 2: # Sigfox
+    if network == 2: # Sigfox
         pycom.rgbled(0x090114)
         ret = sigfox_send()
+        pycom.rgbled(0x000000)
         if ret == 8:
+            return True
+            logger.S = True
+        logger.S = False
+        return False
+
+def networks_loop(networks):
+    sys.exit()
+    while len(networks):
+        net = networks.index(max(networks))
+        if connect_and_send(net):
             id = pycom.nvs_get('msg_id')
             pycom.nvs_set('msg_id', id + 1)
-        pycom.rgbled(0x000000)
+            return
+        del networks[net]
 
-
-connect_and_send(find_best_net())
+networks_loop(order_networks())
 deep_sleep()
