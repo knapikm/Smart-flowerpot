@@ -52,7 +52,11 @@ class MQTTClient:
 
     def connect(self, clean_session=True):
         self.sock = socket.socket()
-        self.sock.connect(self.addr)
+        try:
+            self.sock.connect(self.addr)
+        except Exception as e:
+            print('MQTT connect error', e.args[0])
+            return
         if self.ssl:
             import ussl
             self.sock = ussl.wrap_socket(self.sock, **self.ssl_params)
