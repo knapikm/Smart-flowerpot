@@ -2,41 +2,43 @@ from network import Bluetooth, WLAN
 from pysense import Pysense
 import ubinascii
 import pycom
-import utime
+from utime import sleep
 import sys
 from machine import idle
-
+from measurements import _battery
 import topsis
-from wifiAPI import wifi_connect, wifi_send
-from bleAPI import gatt_connect, gatt_service
+from wifiAPI import wifi_connect, wifi_send, find_wifi
+from bleAPI import gatt_connect, gatt_service, find_ble
 from sigfoxAPI import sigfox_send
 import logger
+
 
 py = Pysense()
 pycom.heartbeat(False)
 
+sys.exit()
 def debug_led(rgb, time):
     pycom.rgbled(rgb)
     idle()
-    utime.sleep(time)
+    sleep(time)
     pycom.rgbled(0)
 
 def start_deep_sleep():
     pycom.rgbled(0x000000)
     idle()
-    utime.sleep(1)
+    sleep(1)
 
     debug_led(0xbb0000, 1)
     idle()
-    utime.sleep(0.5)
+    sleep(0.5)
 
     debug_led(0x880000, 0.7)
     idle()
-    utime.sleep(0.4)
+    sleep(0.4)
 
     debug_led(0x440000, 0.4)
     idle()
-    utime.sleep(0.4)
+    sleep(0.4)
 
     debug_led(0x110000, 0.3)
 
@@ -50,47 +52,20 @@ def deep_sleep():
 
     py.go_to_sleep()
 
-def networks_finder():
-    ble = -10000
-    wifi = -10000
-    # TODO: pridat casovace
+def find_networks(testCase=None):
+    ble = find_ble()
+    wifi = find_wifi()
 
-    wlan = WLAN(mode=WLAN.STA)
-    wlan.disconnect()
-    nets = wlan.scan()
-    for net in nets:
-        #if net.ssid == 'eduroam':
-        if net.ssid == 'RPiAP-DP':
-            #print(net, net[4])
-            wifi = net[4]
-            break
-    wlan.deinit()
+    # TODO:  podmienky
 
-    bluetooth = Bluetooth()
-    bluetooth.start_scan(5)
-    while bluetooth.isscanning():
-        adv = bluetooth.get_adv()
-        if adv:
-            mac = ubinascii.hexlify(adv.mac)
-            if mac == bytearray('b827ebeec52e'):
-                #name = bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL)
-                #print(mac, name, adv.rssi)
-                ble = adv.rssi
-                bluetooth.stop_scan()
-                break
-    bluetooth.deinit()
+
     return ble, wifi
 
-def battery_level(w, b):
-    battery = py.read_battery_voltage()
-    logger.VOLTAGE = battery
-    if battery > 4.6:
-        perc = 100
-    else:
-        # % = (voltage - min) / (max - min)
-        battery -= 3.311792
-        perc = battery / 0.8 * 100
-    list = [perc - 100, perc - 50, perc - 30]
+def battery_level(w, b, testCase=None):
+    battery_perc = _battery(testCase=testCase)
+    if battery_perc == -10000:
+        pass
+    list = [battery_perc - 100, battery_perc - 50, battery_perc - 30]
     for i in range(len(list)):
         if list[i] < 0:
             list[i] *= -1
@@ -106,12 +81,12 @@ def battery_level(w, b):
         list[1] = 10000
     return list
 
-def order_networks():
-    ble, wifi = networks_finder()
+def order_networks(testCase=None):
+    ble, wifi = find_networks(testCase=testCase)
     logger.RSSI = [wifi, ble, -90]
     weights = [7,10,2,5]
     dec_matrix = [[wifi, ble, -90], # rssi
-                  battery_level(wifi, ble), # battery
+                  battery_level(wifi, ble, testCase=testCase), # battery
                   [150000000, 260000, 100], # max data rate
                   [111, 95.9, 47]] # Current consumption
 
@@ -125,6 +100,7 @@ def order_networks():
     return results
 
 def connect_and_send(network):
+    # TODO: pridat casovace
     if network == 0: # wifi
         pycom.rgbled(0x003300)
         wifi_connect()
@@ -146,7 +122,7 @@ def connect_and_send(network):
 
         for _ in range(10):
             idle()
-            utime.sleep(3)
+            sleep(3)
             ble = pycom.nvs_get('ble')
             if ble == 1:
                 debug_led(0x003300, 0.3)
@@ -173,8 +149,10 @@ def networks_loop(networks):
         if connect_and_send(net):
             id = pycom.nvs_get('msg_id')
             pycom.nvs_set('msg_id', id + 1)
-            return
+            break
         del networks[net]
+    else:
+        pass # TODO: co ked ziadna siet nebola uspesna?
 
 networks_loop(order_networks())
 logger.write_log()
