@@ -1,15 +1,15 @@
 from network import Sigfox
 import socket
-import struct
+from struct import pack
 import pycom
-import utime
-import core
+from utime import sleep
+from measurements import measurements
 from machine import idle
 
 def sigfox_payload():
-    id, temp, voltage, moist = core.measurements()
+    id, temp, voltage, moist = measurements()
     print(id, voltage, temp, moist)
-    return bytes([(id >> 8) & 0xff]) + bytes([(id) & 0xff]) + bytearray(struct.pack("f", voltage)) \
+    return bytes([(id >> 8) & 0xff]) + bytes([(id) & 0xff]) + bytearray(pack("f", voltage)) \
            + bytes([temp]) + bytes([moist])
 
 def sigfox_send():
@@ -23,12 +23,12 @@ def sigfox_send():
         print('Sigfox done', ret)
         pycom.rgbled(0x003300)
         idle()
-        utime.sleep(0.3)
+        sleep(0.3)
     except Exception as e:
         print('Sigfox error', e.args[0])
         pycom.rgbled(0x330000)
         idle()
-        utime.sleep(0.3)
+        sleep(0.3)
     s.setblocking(False)
     s.close()
     return ret

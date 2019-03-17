@@ -1,9 +1,9 @@
 from network import Bluetooth
-import core
-import time
-import sys
+from measurements import measurements
 import pycom
 
+
+GATT_CLIENT_MAC = 'b827ebeec52e'
 bluetooth = None
 srv = None
 
@@ -17,6 +17,7 @@ def conn_cb (bt_o):
         print("Client disconnected")
         bluetooth.advertise(True)
 
+
 def char_cb_handler(chr):
     global bluetooth, srv
     events = chr.events()
@@ -27,12 +28,14 @@ def char_cb_handler(chr):
         pycom.nvs_set('ble', 1)
         srv.stop()
 
+
 def gatt_connect():
     global bluetooth
     bluetooth = Bluetooth()
     bluetooth.set_advertisement(name='SiPy')
     bluetooth.callback(trigger=Bluetooth.CLIENT_CONNECTED | Bluetooth.CLIENT_DISCONNECTED, handler=conn_cb)
     bluetooth.advertise(True)
+
 
 def gatt_service():
     global bluetooth, srv
@@ -47,3 +50,36 @@ def gatt_service():
     char1_cb = idTempChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb_handler)
     char2_cb = battMoistChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb_handler)
     srv.start()
+
+
+def find_ble(testCase=None):
+    bluetooth = Bluetooth()
+    try:
+        if isinstance(testCase, Exception):
+            raise testCase
+        bluetooth.start_scan(5)
+        while bluetooth.isscanning():
+            adv = bluetooth.get_adv()
+            if adv:
+                mac = ubinascii.hexlify(adv.mac)
+                if mac == bytearray(GATT_CLIENT_MAC):
+                    #name = bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL)
+                    #print(mac, name, adv.rssi)
+                    if not testCase == 'No found':
+                        rssi = adv.rssi
+                        bluetooth.stop_scan()
+                        break
+        else:
+            rssi = -10000
+        bluetooth.deinit()
+    except Exception as e:
+        if isinstance(testCase, Exception):
+            raise e
+        return -10000
+
+    if testCase is not None and not testCase == 'No found':
+        rssi = testCase
+    if rssi > 0:
+        return -10000
+
+    return rssi
