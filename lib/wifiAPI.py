@@ -23,9 +23,9 @@ def wifi_connect():
 
     nets = wlan.scan()
     for net in nets:
-        if net.ssid == AP['name']:
+        if net.ssid == WIFI_AP['name']:
             print('Wifi connecting...')
-            wlan.connect(ssid=net.ssid, auth=(net.sec, AP['pass']), timeout=5000)
+            wlan.connect(ssid=net.ssid, auth=(net.sec, WIFI_AP['pass']), timeout=5000)
             while not wlan.isconnected():
                 idle()
                 sleep(1)

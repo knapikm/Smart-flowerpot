@@ -29,6 +29,7 @@ def sigfox_send():
         pycom.rgbled(0x330000)
         idle()
         sleep(0.3)
+        return 0
     s.setblocking(False)
     s.close()
     return ret

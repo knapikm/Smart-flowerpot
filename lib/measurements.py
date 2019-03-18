@@ -80,7 +80,7 @@ def _battery(testCase=None):
 def measurements():
     id = pycom.nvs_get('msg_id')
     temp = _temp_sensor()
-    voltage = _battery()
+    perc = _battery()
     moist = _moist_sensor()
 
     print('Measurements:', id, temp, perc, moist)
