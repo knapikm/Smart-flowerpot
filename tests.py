@@ -38,7 +38,7 @@ class WiFiTest(unittest.TestCase):
         self.assertEqual(wifiAPI.find_wifi(1), -10000)
 
     def test_not_found(self):
-        self.assertEqual(wifiAPI.find_wifi('No found'), -10000)
+        self.assertEqual(wifiAPI.find_wifi('Not found'), -10000)
 
     def test_exp(self):
         with self.assertRaises(Exception):
@@ -50,7 +50,7 @@ class BleTest(unittest.TestCase):
         self.assertEqual(wifiAPI.find_wifi(1), -10000)
 
     def test_not_found(self):
-        self.assertEqual(wifiAPI.find_wifi('No found'), -10000)
+        self.assertEqual(wifiAPI.find_wifi('Not found'), -10000)
 
     def test_exp(self):
         with self.assertRaises(Exception):

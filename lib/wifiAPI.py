@@ -58,7 +58,7 @@ def find_wifi(testCase=None):
         for net in nets:
             if net.ssid == WIFI_AP['name']:
                 #print(net, net[4])
-                if not testCase == 'No found':
+                if not testCase == 'Not found':
                     rssi = net[4]
                     break
         else:
@@ -69,7 +69,7 @@ def find_wifi(testCase=None):
             raise e
         return -10000
 
-    if testCase is not None and not testCase == 'No found':
+    if testCase is not None and not testCase == 'Not found':
         rssi = testCase
     if rssi > 0:
         return -10000

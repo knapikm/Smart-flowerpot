@@ -16,20 +16,21 @@ def _find_networks():
 
 def _battery_coef(w, b, testCase=None):
     battery_perc = _battery(testCase=testCase)
-    list = [battery_perc - 100, battery_perc - 50, battery_perc - 30]
-    for i in range(len(list)):
-        if list[i] < 0:
-            list[i] *= -1
-            list[i] /= 2
-
     if battery_perc == -10000:
         list = [-10000,-10000,-10000]
+    else:
+        list = [battery_perc - 100, battery_perc - 50, battery_perc - 30]
+        for i in range(len(list)):
+            if list[i] < 0:
+                list[i] *= -1
+                list[i] /= 2
+
+        if w == -10000:
+            list[0] = 10000
+        if b == -10000:
+            list[1] = 10000
     logger.BATTERY = list
 
-    if w == -10000:
-        list[0] = 10000
-    if b == -10000:
-        list[1] = 10000
     return list
 
 

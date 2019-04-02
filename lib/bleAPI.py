@@ -65,7 +65,7 @@ def find_ble(testCase=None):
                 if mac == bytearray(GATT_CLIENT_MAC):
                     #name = bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL)
                     #print(mac, name, adv.rssi)
-                    if not testCase == 'No found':
+                    if not testCase == 'Not found':
                         rssi = adv.rssi
                         bluetooth.stop_scan()
                         break
@@ -77,7 +77,7 @@ def find_ble(testCase=None):
             raise e
         return -10000
 
-    if testCase is not None and not testCase == 'No found':
+    if testCase is not None and not testCase == 'Not found':
         rssi = testCase
     if rssi > 0:
         return -10000
