@@ -8,8 +8,8 @@ import logger
 import pycom
 
 def _find_networks():
-    ble = find_ble()
     wifi = find_wifi()
+    ble = find_ble()
 
     return ble, wifi
 
@@ -37,7 +37,8 @@ def _battery_coef(w, b, testCase=None):
 def _order_networks():
     ble, wifi = _find_networks()
     logger.RSSI = [wifi, ble, -90]
-    weights = [7,10,2,5]
+    print(logger.RSSI)
+    weights = [8,10,3,5]
     dec_matrix = [[wifi, ble, -90], # rssi
                   _battery_coef(wifi, ble), # battery
                   #[-10000, -10000, -10000],
@@ -52,12 +53,15 @@ def _connect_and_send(network):
     # TODO: pridat casovace
     if network == 0: # wifi
         pycom.rgbled(0x003300)
-        wifi_connect()
-        ret = wifi_send()
-        if ret == 1:
-            pycom.rgbled(0x000000)
-            logger.W = True
-            return True
+        if wifi_connect():
+            if wifi_send() == 1:
+                pycom.rgbled(0x000000)
+                logger.W = True
+                return True
+            else:
+                debug_led(0x330000, 0.3)
+                logger.W = False
+                return False
         else:
             debug_led(0x330000, 0.3)
             logger.W = False
@@ -95,6 +99,7 @@ def _connect_and_send(network):
 
 def networks_loop():
     networks = _order_networks()
+    sys.exit()
     while len(networks):
         net = networks.index(max(networks))
         if _connect_and_send(net):

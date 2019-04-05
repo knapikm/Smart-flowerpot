@@ -29,22 +29,32 @@ def wifi_connect():
             while not wlan.isconnected():
                 idle()
                 sleep(1)
+            break
+    else:
+        return False
 
-            print('MQTT connecting...')
-            client = MQTTClient(client_id="5bc8d724c03f971859b7747b", server="things.ubidots.com", user="A1E-rHXnsEnsjpZKKSlf8khOxgZwnXKkE3", password="A1E-rHXnsEnsjpZKKSlf8khOxgZwnXKkE3", port=1883)
-            #client.set_callback(sub_cb)
-            client.connect()
-            #client.subscribe(topic="youraccount/.../...")
-            return 1
-
-    return None
+    try:
+        print('MQTT connecting...')
+        client = MQTTClient(client_id="5bc8d724c03f971859b7747b", server="things.ubidots.com", user="A1E-rHXnsEnsjpZKKSlf8khOxgZwnXKkE3", password="A1E-rHXnsEnsjpZKKSlf8khOxgZwnXKkE3", port=1883)
+        #client.set_callback(sub_cb)
+        if client.connect() == -1:
+            return False
+        else:
+            return True
+        #client.subscribe(topic="youraccount/.../...")
+    except Exception as e:
+        return False
 
 
 def wifi_send():
     global client, wlan
     print('Wifi sending...')
-    ret = client.publish(topic=b"/v1.6/devices/sipy", msg=_prepare_payload_for_publish(), qos=1)
-    wlan.disconnect()
+    try:
+        ret = client.publish(topic=b"/v1.6/devices/sipy", msg=_prepare_payload_for_publish(), qos=1)
+        wlan.disconnect()
+    except Exception as e:
+        return -1
+
     return ret
 
 

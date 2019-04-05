@@ -1,6 +1,7 @@
 from network import Bluetooth
 from measurements import measurements
 import pycom
+import ubinascii
 
 
 GATT_CLIENT_MAC = 'b827ebeec52e'
