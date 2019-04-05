@@ -1,10 +1,11 @@
+from pysense import Pysense
 from networkSelection import networks_loop
 import pycom
 from utime import sleep
 from machine import idle
 from logger import write_log
 
-
+py = Pysense()
 pycom.heartbeat(False)
 
 def debug_led(rgb, time):
@@ -43,5 +44,5 @@ def deep_sleep():
 
 
 networks_loop()
-write_log()
+write_log(mqtt=True)
 deep_sleep()
