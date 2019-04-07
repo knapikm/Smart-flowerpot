@@ -6,6 +6,10 @@ from sigfoxAPI import sigfox_send
 import sys
 import logger
 import pycom
+from debugAPI import debug_led
+from utime import sleep
+from machine import idle
+
 
 def _find_networks():
     wifi = find_wifi()
@@ -99,13 +103,15 @@ def _connect_and_send(network):
 
 def networks_loop():
     networks = _order_networks()
-    sys.exit()
+    #sys.exit()
     while len(networks):
+        print(networks)
         net = networks.index(max(networks))
-        if _connect_and_send(net):
+        if _connect_and_send(net) is True:
             id = pycom.nvs_get('msg_id')
             pycom.nvs_set('msg_id', id + 1)
             break
-        del networks[net]
+        else:
+            networks[net] = -1
     else:
         pass # TODO: co ked ziadna siet nebola uspesna?

@@ -2,7 +2,7 @@ from network import Bluetooth
 from measurements import measurements
 import pycom
 import ubinascii
-
+import logger
 
 GATT_CLIENT_MAC = 'b827ebeec52e'
 bluetooth = None
@@ -28,6 +28,7 @@ def char_cb_handler(chr):
         print('write', chr.value())
         pycom.nvs_set('ble', 1)
         srv.stop()
+        logger.GATT = True
 
 
 def gatt_connect():
@@ -42,7 +43,7 @@ def gatt_service():
     global bluetooth, srv
     srv = bluetooth.service(uuid=4321, isprimary=True, nbr_chars=4, start=False)
 
-    id, temp, voltage, moist = core.measurements()
+    id, temp, voltage, moist = measurements()
     respChr = srv.characteristic(uuid=4560, value=0)
     idTempChr = srv.characteristic(uuid=4561, value="{}, {}".format(id, temp))
     battMoistChr = srv.characteristic(uuid=4562, value="{}, {}".format(voltage, moist))

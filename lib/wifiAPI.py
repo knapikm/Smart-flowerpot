@@ -25,7 +25,7 @@ def wifi_connect():
     for net in nets:
         if net.ssid == WIFI_AP['name']:
             print('Wifi connecting...')
-            wlan.connect(ssid=net.ssid, auth=(net.sec, WIFI_AP['pass']), timeout=5000)
+            wlan.connect(ssid=net.ssid, auth=(net.sec, WIFI_AP['pass']), timeout=60)
             while not wlan.isconnected():
                 idle()
                 sleep(1)
@@ -37,7 +37,9 @@ def wifi_connect():
         print('MQTT connecting...')
         client = MQTTClient(client_id="5bc8d724c03f971859b7747b", server="things.ubidots.com", user="A1E-rHXnsEnsjpZKKSlf8khOxgZwnXKkE3", password="A1E-rHXnsEnsjpZKKSlf8khOxgZwnXKkE3", port=1883)
         #client.set_callback(sub_cb)
-        if client.connect() == -1:
+        r = client.connect()
+        print('MQTT connect ret:', r)
+        if r == -1:
             return False
         else:
             return True
