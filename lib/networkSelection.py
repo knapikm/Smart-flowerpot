@@ -33,7 +33,7 @@ def _battery_coef(w, b, testCase=None):
             list[0] = 10000
         if b == -10000:
             list[1] = 10000
-    logger.BATTERY = list
+    logger.BATTERY = list[:]
 
     return list
 
@@ -103,15 +103,15 @@ def _connect_and_send(network):
 
 def networks_loop():
     networks = _order_networks()
+    nets = networks[:]
     #sys.exit()
-    while len(networks):
-        print(networks)
-        net = networks.index(max(networks))
+    while len(nets):
+        net = nets.index(max(nets))
         if _connect_and_send(net) is True:
             id = pycom.nvs_get('msg_id')
             pycom.nvs_set('msg_id', id + 1)
             break
         else:
-            networks[net] = -1
+            nets[net] = -1
     else:
         pass # TODO: co ked ziadna siet nebola uspesna?
