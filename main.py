@@ -9,6 +9,8 @@ py = Pysense()
 pycom.heartbeat(False)
 
 def deep_sleep():
+    id = pycom.nvs_get('msg_id')
+    pycom.nvs_set('msg_id', id + 1)
     print('Start deep sleep...')
     py.setup_int_pin_wake_up(True)
     py.setup_int_wake_up(False, True)

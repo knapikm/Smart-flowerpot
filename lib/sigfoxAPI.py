@@ -6,10 +6,10 @@ from utime import sleep
 from measurements import measurements
 from machine import idle
 
-def sigfox_payload():
-    id, temp, voltage, moist = measurements()
-    print(id, voltage, temp, moist)
-    return bytes([(id >> 8) & 0xff]) + bytes([(id) & 0xff]) + bytearray(pack("f", voltage)) \
+def _sigfox_payload():
+    id, temp, percentage, moist = measurements()
+    print(id, percentage, temp, moist)
+    return bytes([(id >> 8) & 0xff]) + bytes([(id) & 0xff]) + bytes([percentage]) \
            + bytes([temp]) + bytes([moist])
 
 def sigfox_send():
@@ -19,7 +19,7 @@ def sigfox_send():
     s.setsockopt(socket.SOL_SIGFOX, socket.SO_RX, False)
     try:
         print('Sigfox sending...')
-        ret = s.send(sigfox_payload())
+        ret = s.send(_sigfox_payload())
         print('Sigfox done', ret)
         pycom.rgbled(0x003300)
         idle()

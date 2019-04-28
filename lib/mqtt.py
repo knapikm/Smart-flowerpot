@@ -53,7 +53,9 @@ class MQTTClient:
     def connect(self, clean_session=True):
         self.sock = socket.socket()
         try:
+            self.sock.settimeout(30)
             self.sock.connect(self.addr)
+            self.sock.settimeout(None)
         except Exception as e:
             print('MQTT connect error', e.args[0])
             return -1

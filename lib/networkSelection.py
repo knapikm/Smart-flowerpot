@@ -12,10 +12,7 @@ from machine import idle
 
 
 def _find_networks():
-    wifi = find_wifi()
-    ble = find_ble()
-
-    return ble, wifi
+    return find_wifi(), find_ble()
 
 
 def _battery_coef(w, b, testCase=None):
@@ -39,18 +36,18 @@ def _battery_coef(w, b, testCase=None):
 
 
 def _order_networks():
-    ble, wifi = _find_networks()
-    logger.RSSI = [wifi, ble, -90]
-    print(logger.RSSI)
-    weights = [8,10,3,5]
-    dec_matrix = [[wifi, ble, -90], # rssi
-                  _battery_coef(wifi, ble), # battery
-                  #[-10000, -10000, -10000],
-                  [150000000, 260000, 100], # max data rate
-                  [111, 95.9, 47]] # Current consumption
-    res = closeness(dec_matrix, weights)
-    logger.RES = res
-    return res
+    wifi_rssi, ble_rssi = _find_networks()
+    sigfox_rssi = -90
+    logger.RSSI = [wifi_rssi, ble_rssi, sigfox_rssi]
+    weights = [5,8,2,6]
+    logger.WEIGHTS = weights[:]
+    dec_matrix = [[wifi_rssi, ble_rssi, sigfox_rssi], # rssi
+                  _battery_coef(wifi_rssi, ble_rssi), # battery coefficient
+                  [16000000, 260000, 100], # max data rate
+                  [111, 95.9, 47]] # current consumption
+    result = closeness(dec_matrix, weights) # TOPSIS
+    logger.RESULT = result[:]
+    return result
 
 
 def _connect_and_send(network):
@@ -94,7 +91,7 @@ def _connect_and_send(network):
         pycom.rgbled(0x090114)
         ret = sigfox_send()
         pycom.rgbled(0x000000)
-        if ret == 8:
+        if ret == 5:
             logger.S = True
             return True
         logger.S = False
@@ -103,15 +100,12 @@ def _connect_and_send(network):
 
 def networks_loop():
     networks = _order_networks()
-    nets = networks[:]
     #sys.exit()
-    while len(nets):
-        net = nets.index(max(nets))
+    while len(networks):
+        net = networks.index(max(networks))
         if _connect_and_send(net) is True:
-            id = pycom.nvs_get('msg_id')
-            pycom.nvs_set('msg_id', id + 1)
-            break
+            return
         else:
-            nets[net] = -1
+            networks[net] = -1
     else:
         pass # TODO: co ked ziadna siet nebola uspesna?

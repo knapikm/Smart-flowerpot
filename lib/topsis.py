@@ -52,5 +52,5 @@ def _det_ideal_sol(sol):
 def closeness(dec_matrix, weights):
     dec_matrix = _standardize(dec_matrix)
     dec_matrix = _multiply_weights(dec_matrix, weights)
-    sol = _solutions(dec_matrix)
-    return _det_ideal_sol(sol)
+    solutions = _solutions(dec_matrix)
+    return _det_ideal_sol(solutions)

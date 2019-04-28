@@ -13,7 +13,8 @@ S = None
 RSSI = []
 BATTERY = []
 VOLTAGE = 0
-RES = []
+RESULT = []
+WEIGHTS = []
 
 def mqtt_log(payload):
     #_AP = {'name': 'INFOTECH', 'pass': 'MU1nFotech28'}
@@ -26,7 +27,7 @@ def mqtt_log(payload):
     for net in nets:
         if net.ssid == _AP['name']:
             print('Wifi connecting...')
-            wlan.connect(ssid=net.ssid, auth=(net.sec, _AP['pass']), timeout=60)
+            wlan.connect(ssid=net.ssid, auth=(net.sec, _AP['pass']), timeout=40)
             while not wlan.isconnected():
                 idle()
                 sleep(1)
@@ -48,14 +49,15 @@ def mqtt_log(payload):
 
 
 def write_log(mqtt=False):
-    id = pycom.nvs_get('msg_id') - 1
+    id = pycom.nvs_get('msg_id')
     log = json.dumps({
         "log": id,
         "topsis": {
             "rssi": RSSI,
             "battery": BATTERY,
             "voltage": VOLTAGE,
-            "result": RES
+            "result": RESULT,
+            "weights": WEIGHTS
         },
         "wifi": W,
         "ble": B,
