@@ -3,7 +3,7 @@ from machine import idle
 from mqtt import MQTTClient
 from network import WLAN
 import json
-from measurements import measurements
+import measurements
 
 client = None
 wlan = None
@@ -11,8 +11,13 @@ WIFI_AP = {'name': 'RPiAP-DP', 'pass': 'raspberry-pi.DP18-19'}
 #WIFI_AP = {'name': 'INFOTECH', 'pass': 'MU1nFotech28'}
 
 def _prepare_payload_for_publish():
-    id, temp, voltage, moist = measurements()
-    return json.dumps( { "id": id, "temperature": temp, "battery": voltage, "moisture": moist, "network": 1 } )
+    return json.dumps( {
+        "id": measurements.MSG_ID,
+        "temperature": measurements.TEMP,
+        "battery": measurements.VOLTAGE,
+        "moisture": measurements.MOIST,
+        "network": 1
+    } )
 
 
 def wifi_connect():

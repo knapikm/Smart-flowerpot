@@ -4,6 +4,10 @@ from machine import Pin,ADC
 import pycom
 import logger
 
+TEMP = None
+MOIST = None
+VOLTAGE = None
+MSG_ID = None
 
 def _moist_sensor(testCase=None):
     voltage_ref = 4.096
@@ -76,10 +80,10 @@ def _battery(testCase=None):
     return perc
 
 def measurements():
-    msg_id = pycom.nvs_get('msg_id')
-    temp = _temp_sensor()
-    perc = _battery()
-    moist = _moist_sensor()
+    global MSG_ID, TEMP, MOIST, VOLTAGE
+    MSG_ID = pycom.nvs_get('msg_id')
+    TEMP = _temp_sensor()
+    VOLTAGE = _battery()
+    MOIST = _moist_sensor()
 
-    print('Measurements:', msg_id, temp, perc, moist)
-    return msg_id, temp, perc, moist
+    print('Measurements:', MSG_ID, TEMP, VOLTAGE, MOIST)

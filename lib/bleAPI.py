@@ -1,5 +1,5 @@
 from network import Bluetooth
-from measurements import measurements
+import measurements
 import pycom
 import ubinascii
 import logger
@@ -43,10 +43,9 @@ def gatt_service():
     global ble, srv
     srv = ble.service(uuid=4321, isprimary=True, nbr_chars=3, start=False)
 
-    msg_id, temp, voltage, moist = measurements()
     respChr = srv.characteristic(uuid=4560, value=0)
-    idTempChr = srv.characteristic(uuid=4561, value="{}, {}".format(msg_id, temp))
-    battMoistChr = srv.characteristic(uuid=4562, value="{}, {}".format(voltage, moist))
+    idTempChr = srv.characteristic(uuid=4561, value="{}, {}".format(measurements.MSG_ID, measurements.TEMP))
+    battMoistChr = srv.characteristic(uuid=4562, value="{}, {}".format(measurements.VOLTAGE, measurements.MOIST))
 
     char0_cb = respChr.callback(trigger=Bluetooth.CHAR_WRITE_EVENT, handler=char_cb)
     char1_cb = idTempChr.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char_cb)

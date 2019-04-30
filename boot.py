@@ -7,8 +7,8 @@ pycom.heartbeat(False)
 pycom.rgbled(0x331C00)
 
 id = pycom.nvs_get('msg_id')
-if id is None:
+if id is None or id == 65535:
     pycom.nvs_set('msg_id', 0)
 
-sd = SD()
-os.mount(sd, '/sd')
+#sd = SD()
+#os.mount(sd, '/sd')

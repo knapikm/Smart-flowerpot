@@ -3,14 +3,12 @@ import socket
 from struct import pack
 import pycom
 from utime import sleep
-from measurements import measurements
+import measurements
 from machine import idle
 
 def _sigfox_payload():
-    id, temp, percentage, moist = measurements()
-    print(id, percentage, temp, moist)
-    return bytes([(id >> 8) & 0xff]) + bytes([(id) & 0xff]) + bytes([percentage]) \
-           + bytes([temp]) + bytes([moist])
+    return bytes([(measurements.MSG_ID >> 8) & 0xff]) + bytes([(measurements.MSG_ID) & 0xff]) \
+           + bytes([measurements.VOLTAGE]) + bytes([measurements.TEMP]) + bytes([measurements.MOIST])
 
 def sigfox_send():
     sigfox = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ1) # init Sigfox for RCZ1 (Europe)
